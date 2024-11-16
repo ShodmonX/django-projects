@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+ShodmonX | Create New Post
+{% endblock title %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+<h1>Add Post...</h1>
+<br>
+<div class="form-group">
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <a href="{{ previous_url }}" class="btn btn-primary">Back</a>
+        <button type="submit" class="btn btn-primary">Post</button>
+    </form>
+</div>
+{% else %}
+<p>You're not allowed her!!!</p>
+{% endif %}
+
+{% endblock content %}

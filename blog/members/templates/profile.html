@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+ShodmonX | Profile
+{% endblock title %}
+
+{% block content %}
+
+<div class="container mt-1">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <!-- Profile Image -->
+                    {% if object.profile.image %}
+                    <img src="{{ object.profile.image.url }}" alt="Profile Image" class="rounded-circle mb-3" width="150">
+                    {% else %}
+                    <img src="{% static 'images/default_user.webp' %}" alt="">
+                    {% endif %}
+                    <!-- Full Name -->
+                    {% if object.first_name or object.last_name %}
+                    <h3 class="card-title">{{ object.first_name|title }} {{ object.last_name|title }}</h3>
+                    {% endif %}
+                    <!-- Username -->
+                    {% if object.username %}
+                    <p class="text-muted">@{{object.username}}</p>
+                    {% endif %}
+                    <!-- Email -->
+                    {% if object.email %}
+                    <p class="text-muted">{{object.email}}</p>
+                    {% endif %}
+                    <!-- Biography -->
+                    {% if object.profile.bio %}
+                    <p class="card-text">{{ object.profile.bio }}</p>
+                    {% endif %}
+                    <!-- Social Media Links -->
+                    <div class="d-flex justify-content-center flex-wrap gap-3 mt-3">
+                        {% if object.profile.telegram_url %}
+                        <a href="{{ object.profile.telegram_url }}" class="btn btn-outline-primary mx-1"
+                        target="_blank">Telegram</a>
+                        {% endif %}
+                        {% if object.profile.instagram_url %}
+                        <a href="{{ object.profile.instagram_url }}" class="btn btn-outline-danger mx-1"
+                        target="_blank">Instagram</a>
+                        {% endif %}
+                        {% if object.profile.facebook_url %}
+                        <a href="{{ object.profile.facebook_url }}" class="btn btn-outline-primary mx-1"
+                        target="_blank">Facebook</a>
+                        {% endif %}
+                        {% if object.profile.twitter_url %}
+                        <a href="{{ object.profile.twitter_url }}" class="btn btn-outline-info mx-1"
+                        target="_blank">Twitter</a>
+                        {% endif %}
+                        {% if object.profile.website_url %}
+                        <a href="{{ object.profile.website_url }}" class="btn btn-outline-dark mx-1" target="_blank">Website</a>
+                        {% endif %}
+                        <a href="{% url 'edit_profile' %}" class="btn btn-success mx-1" target="_blank">Settings</a>
+                        {% if request.user.profile %}
+                        <a class="btn btn-success mx-1" href="{% url 'update_profile' %}">Update Profile</a></li>
+                        {% else %}
+                        <a class="btn btn-success mx-1" href="{% url 'add_profile' %}">Create Profile</a></li>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

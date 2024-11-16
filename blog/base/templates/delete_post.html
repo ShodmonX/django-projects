@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+ShodmonX | Delete Post
+{% endblock title %}
+
+{% block content %}
+{% if request.user == post.author %}
+<h1>Delete Post...</h1>
+<br>
+<h3>Delete: {{ post.title }}</h3>
+<div class="form-group">
+    <form action="" method="post">
+        {% csrf_token %}
+        <strong>Are you sure?!</strong>
+        <br><br>
+        <a href="{{ previous_url }}" class="btn btn-primary">Back</a>
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+</div>
+{% else %}
+<p>You're not allowed her!!!</p>
+{% endif %}
+
+{% endblock content %}

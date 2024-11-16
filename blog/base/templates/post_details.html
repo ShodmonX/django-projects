@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}
+ShodmonX | {{ object.title }}
+{% endblock title %}
+
+{% block content %}
+
+<style>
+    img {
+        width: 100%;
+    }
+</style>
+
+
+<h1>{{ object.title }}</h1>
+<small>By: {{object.author.first_name}} - {{ post.post_date }}</small>
+<h5><i>{{ object.title_tag }}</i></h5>
+<hr>
+{% if object.header_image %}
+<img src="{{object.header_image.url}}" alt="IMG">
+{% endif %}
+<p>{{ object.body|safe }}</p>
+<hr>
+<form action="{% url 'like_post' post.pk %}" method="post">
+    {% csrf_token %}
+    {% if liked %}
+    <button id="like-button" data-post-id="{{ post.id }}" class="btn btn-warning" type="button">
+        Unlike
+    </button>
+    {% else %}
+    <button id="like-button" data-post-id="{{ post.id }}" class="btn btn-outline-warning" type="button">
+        like
+    </button>
+    {% endif %}
+    <span id="like-count">{{ total_likes }}</span>
+</form>
+<hr>
+<h2>Comments...</h2>
+<ul id="comment-list">
+    {% for comment in object.comments.all %}
+    <li>
+        <b>{{comment.author.first_name|title}} - {{comment.created_on|timesince}} ago</b>
+        <br>
+        {{ comment.body }}
+    </li>
+    {% empty %}
+    <li id="noComments">No comments yet.</li>
+    {% endfor %}
+</ul>
+<div class="row">
+    <div class="col-9">
+        <input type="text" name="comment" id="commentInput" placeholder="Add a comment" class="form-control">
+    </div>
+    <div class="col-3">
+        <button id="addComment" data-post-id="{{ post.id }}" type="button" class="btn btn-success w-auto">Add</button>
+    </div>
+</div>
+<hr>
+<a href="{% url 'home' %}" class="btn btn-outline-primary">Back</a>
+{% if request.user == post.author %}
+<a href="{% url 'update_post' post.id %}" class="btn btn-outline-success">Edit</a>
+<a href="{% url 'delete_post' post.id %}" class="btn btn-outline-danger">Delete</a>
+{% endif %}
+<script>
+    document.getElementById('like-button').addEventListener('click', function (event) {
+        event.preventDefault();
+
+        var postId = this.getAttribute('data-post-id');
+        var url = `/like/${postId}/`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const likeBtn = document.getElementById('like-button');
+                if (data.liked) {
+                    likeBtn.innerText = 'Unlike';
+                    likeBtn.classList.remove('btn-outline-warning');
+                    likeBtn.classList.add('btn-warning');
+                } else {
+                    likeBtn.innerText = 'Like';
+                    likeBtn.classList.add('btn-outline-warning');
+                    likeBtn.classList.remove('btn-warning');
+                }
+                // like_count qiymatini yangilash, undefined bo'lmasligi uchun tekshirish
+                if (data.like_count !== undefined) {
+                    document.getElementById('like-count').innerText = data.like_count;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('addComment').addEventListener('click', function (event) {
+        event.preventDefault();
+
+        var postId = this.getAttribute('data-post-id');
+        var url = `/add-comment/${postId}/`;  // Slash bilan
+
+        var datas = {
+            'body': document.getElementById('commentInput').value
+        };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(datas),
+        })
+            .then(response => response.json())
+            .then(data => {
+                const commentList = document.getElementById('comment-list');
+                const comment = document.createElement('li');
+                comment.innerHTML = `<b>${data.user} - ${data.created_on}</b><br>${data.comment}`;
+                commentList.appendChild(comment);
+                document.getElementById('commentInput').value = '';
+                document.getElementById('noComments').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });</script>
+{% endblock content %}

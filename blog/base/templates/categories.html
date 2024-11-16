@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if category_posts %}
+    <h1>{{cats|title}} Category</h1>
+
+    <ul>
+        {% for post in category_posts %}
+        <li class="mb-4">
+            <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a> - {{ post.author.first_name }} 
+            <br>
+            {% for category in post.category.all %}
+            <span class="pb-0 mb-0"><a href="{% url 'category' category.name|slugify %}">{{ category.name }}</a></span>&nbsp;
+            {% endfor %}
+            <p class="mb-2">{{ post.body|slice:":200"|safe }}... | <small>{{ post.post_date|timesince }}</small></p>
+            <a href="{% url 'post_detail' post.id %}" class="btn btn-primary btn-sm">More</a>
+            {% if request.user == post.author %}
+            <a href="{% url 'update_post' post.id %}" class="btn btn-success btn-sm">Edit</a>
+            <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+<h2>This page does not exit</h2>
+{% endif %}
+
+{% endblock content %}
